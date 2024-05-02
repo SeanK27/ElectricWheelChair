@@ -55,6 +55,11 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max);
+
+void analogWriteLeft(int val);
+
+void analogWriteRight(int val);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -106,38 +111,35 @@ int main(void)
 
 	// Assign 30% duty cycle of 30% by assigning CCR1 register within TIM1
 	TIM1->CCR1 = 30;
+	TIM1->CCR2 = 30;
 
 	// Begin the PWM timer
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+
+	//Start ADC through DMA
+	HAL_ADC_Start_DMA(&hadc1, xyData, 2);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+///////////////////////////////////////////////////////////////////////////////////////
+	// Parameter used to adjust turning sensitivity.
+	double turnFactor = 1;
+	double base, adjust, rightMotor, leftMotor;
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
+	  // Calculate the base value linearly scaling the joystick in the y direction.
 
-/*
-	  if (sig == 0) {
-		  if (TIM1->CCR1 != 100) {
-			  HAL_Delay(10);
-			  TIM1->CCR1++;
-		  } else {
-			  TIM1->CCR1 = 0;
-		  }
-	  }
-*/
+
+
 	  // 0 - 4095
-
-
-	  HAL_ADC_Start_DMA(&hadc1, xyData, 2);
-
-
-
 
   }
   /* USER CODE END 3 */
@@ -190,6 +192,18 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+uint32_t map(uint32_t x, uint32_t in_min, uint32_t in_max, uint32_t out_min, uint32_t out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void analogWriteLeft(int val) {
+	TIM1->CCR1 = val;
+}
+
+void analogWriteRight(int val) {
+	TIM1->CCR2 = val;
+}
 
 /* USER CODE END 4 */
 
