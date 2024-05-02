@@ -109,9 +109,9 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
-	// Assign 30% duty cycle of 30% by assigning CCR1 register within TIM1
-	TIM1->CCR1 = 30;
-	TIM1->CCR2 = 30;
+	// Assign 0% duty cycle by assigning CCR1 register within TIM1
+	TIM1->CCR1 = 0;
+	TIM1->CCR2 = 0;
 
 	// Begin the PWM timer
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -136,8 +136,55 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	  // Calculate the base value linearly scaling the joystick in the y direction.
+	  base = map(xyData[0], 2048, 4095, 0, 100);
+
+	  // Adjustment value that is applied to both motors
+	  adjust = (map(512 - xyData[1], 0, 4095, 0, 100)) * turnFactor;
+
+	  // Apply adjustment
+	  rightMotor = base - adjust;
+	  leftMotor = base + adjust;
+
+	  // Braking implementation. ACTIVE HIGH.
+	  // When joystick is fully back, send HIGH signal to brakePinLeft then set power to 0.
+	  if (rightMotor < -240 && leftMotor < -240) {
+		  HAL_GPIO_WritePin(GPIOA, leftBrakePin, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOA, rightBrakePin, GPIO_PIN_SET);
+	      rightMotor = 0;
+	      leftMotor = 0;
+	    }
+
+	  else {
+
+	      // Remove any braking before sending power
+		  HAL_GPIO_WritePin(GPIOA, leftBrakePin, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOA, rightBrakePin, GPIO_PIN_RESET);
+	  }
+
+	  // Filtering out values greater than 100 and less than 0
+
+	  if (rightMotor < 0) {
+		  rightMotor = 0;
+	  }
+
+	  if (leftMotor < 0) {
+	      leftMotor = 0;
+	  }
+
+	  if (rightMotor > 255) {
+	      rightMotor = 255;
+	  }
+
+	  if (leftMotor > 255) {
+	      leftMotor = 255;
+	  }
+
+	  // Send output PWM signal to leftMotor and rightMotor (0-255)
+	  analogWriteLeft(leftMotor);
 
 
+	  //rightMotor
+	  analogWriteRight(rightMotor);
 
 	  // 0 - 4095
 
