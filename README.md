@@ -13,7 +13,7 @@ Pull requests are welcome.
 ### Current Contributors
 SeanK27 - STM32Implementation, ArduinoR3Implementation/SKKImp
 <br>
-learner559 - ArduinoR3Implementation/DCImp
+learner559 - ArduinoR3Implementation/learner559Imp
 
 ## Future Plans
 1. Computer vision features using PixiCam
