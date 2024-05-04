@@ -48,7 +48,6 @@ void setup() {
 const int RESTING_X_RAW = 514;
 const int RESTING_Y_RAW = 512;
 double raw_x, raw_y;
-double x_pos, y_pos;
 
 // Sensitivity is how many values (on 1023 scale) to ignore
 // when determining things like if the stick is pressed forward or not
@@ -77,9 +76,6 @@ void loop() {
   raw_x = analogRead(joyXPin);
   raw_y = analogRead(joyYPin);
 
-  // Sets x and y positions to 0, 0 when the stick is not pressed
-  x_pos = raw_x - RESTING_X_RAW;
-  y_pos = raw_y - RESTING_Y_RAW;
 
   if (digitalRead(buttonPin) == LOW){
     digitalWrite(rightBrakePin, HIGH);
@@ -336,12 +332,16 @@ void calculateForwardValuesSpeedMode(){
     // As y starts to decrease (until resting + sensitivity), 
     // gradually increase turning to 100%
     if (raw_x < 1023){
-      turn_power = 1 * ((x_pos)/(1023 - RESTING_X_RAW));
+      turn_power = 1 * ((raw_x - RESTING_X_RAW)/(1023 - RESTING_X_RAW));
     }
 
     // x >= 1023, meaning stick is at or beyond quadrant 1 dead area
     else{
       turn_power = 1;
+
+      // The following line allows for more precise control over steering values, but makes the
+      // controls less intuitive. It has been commented out for a better user experience, though
+      // it may be useful again in the future.
       //turn_power = 0.5 + (0.5*((RESTING_Y_RAW - (raw_y - 511))/(RESTING_Y_RAW)));
     }
   }
@@ -356,6 +356,10 @@ void calculateForwardValuesSpeedMode(){
     // After dead zone (x <= 0)
     else{
       turn_power = 1;
+      
+      // The following line allows for more precise control over steering values, but makes the
+      // controls less intuitive. It has been commented out for a better user experience, though
+      // it may be useful again in the future.
     //   turn_power = 0.5 + (0.5*((RESTING_Y_RAW - (raw_y - 511))/(RESTING_Y_RAW)));
     }
   }
