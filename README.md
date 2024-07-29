@@ -16,6 +16,6 @@ SeanK27 - STM32Implementation, ArduinoR3Implementation/SKKImp
 learner559 - ArduinoR3Implementation/learner559Imp
 
 ## Future Plans
-1. Computer vision features using PixiCam
-2. Self driving with Oak-D camera or Realsense
+1. Vision features using PixiCam
+2. Computer vision, tracking and potentially self driving using Oak-D
 3. Higher power hub motors for increased maneuverability
