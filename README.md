@@ -1,21 +1,45 @@
 # Electric Wheelchair Prototype
 
-The Electric Wheelchair Prototype is a personal project to design a prototype of an electric wheelchair. This repository stores the control code for multiple device options.
+The Electric Wheelchair Prototype is a personal project for a prototype of an electric wheelchair. This repository stores the control code for multiple device options and will soon include documentation for full project.
 
-## Devices
+## Features
+- Full 360 degree range of control including turn on the spot
+- Overcurrent protection for wheel locks and motor preservation
+- Heading drift correction
 
-Code is written for the STM32F401 Nucleo and the Arduino R3. The controls are still under development.
+## Hardware
+- VersaCart S Series 180L
+- 350W Hoverboard Hub Motors
+- STM32F401 Nucleo & Arduino R3
+- Weize 12V 12Ah Lead Acid Batteries
+- RioRand 350W ESC
 
-## Contributions
+#### Contributors
+- Sean Kadkhodayan - Electrical and Mechanical Design
 
-Pull requests are welcome.
+## Software
 
-### Current Contributors
-SeanK27 - STM32Implementation, ArduinoR3Implementation/SKKImp
+Code is written for both the STM32F401 Nucleo and the Arduino R3. Heading drift correction in progress. Looking into computer vision options.
+
+#### Contributors
+- SeanK27 - STM32Implementation, ArduinoR3Implementation/SKKImp
+- learner559 - ArduinoR3Implementation/learner559Imp
+
+Pull requests are welcome :)
+
+## Milestones
+:white_check_mark: Initial Electircal and Mechanical design with hub motors
+
+:white_check_mark: Initial software for full movement range
+
+:hourglass_flowing_sand: Heading drift correction with IMU
+
+:hourglass_flowing_sand: Computer vision and tracking using Oak-D
+
+:sparkles: GPS and other sensors for path finding
+
+:sparkles: Higher power motors for speed and, in turn, full electrical system upgrade
+
 <br>
-learner559 - ArduinoR3Implementation/learner559Imp
 
-## Future Plans
-1. Vision features using PixiCam
-2. Computer vision, tracking and potentially self driving using Oak-D
-3. Higher power hub motors for increased maneuverability
+Key: :white_check_mark: Complete; :hourglass_flowing_sand: In Progress; :sparkles: Planned
