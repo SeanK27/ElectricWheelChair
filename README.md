@@ -1,6 +1,6 @@
 # Electric Wheelchair Prototype
 
-The Electric Wheelchair Prototype is a personal project for a prototype of an electric wheelchair. This repository stores the control code for multiple device options and will soon include documentation for full project.
+The Electric Wheelchair Prototype is a personal project with the goal of designing a prototype of an electric wheelchair. This repository stores the control code for multiple device options and will soon include documentation for full project.
 
 ## Features
 - Full 360 degree range of control including turn on the spot
@@ -13,6 +13,7 @@ The Electric Wheelchair Prototype is a personal project for a prototype of an el
 - STM32F401 Nucleo & Arduino R3
 - Weize 12V 12Ah Lead Acid Batteries
 - RioRand 350W ESC
+- WitMotion WT901 IMU
 
 #### Contributors
 - Sean Kadkhodayan - Electrical and Mechanical Design
