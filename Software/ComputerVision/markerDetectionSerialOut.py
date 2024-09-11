@@ -56,20 +56,21 @@ while True:
 
             """
             # Calculate the size of the marker (distance between two opposite corners)
-            marker_size = int(cv.norm(corners[0][0] - corners[0][2]))
-            print(f"Marker ID: {markerId[0]}, Size: {marker_size}")
+            marker_distance = int(cv.norm(corners[0][0] - corners[0][2]))
+            print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
             """
 
             # Calculate the size of the marker using the average distance between all pairs of opposite corners
             size1 = cv.norm(corners[0][0] - corners[0][2])
             size2 = cv.norm(corners[0][1] - corners[0][3])
-            marker_size = int((size1 + size2) / 2)
-            print(f"Marker ID: {markerId[0]}, Size: {marker_size}")
+            marker_distance = int((size1 + size2) / 2)
+            print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
 
             ### TODO: Make a better calculation for the marker size and use some calc or something ###
 
             # Send the coordinates and size over serial
-            ser.write(f'{x_center},{y_center},{marker_size}\n'.encode())
+            ser.write(f'{x_center},{y_center},{marker_distance}\n'.encode())
+            ser.write(b'\n')  # Add a newline stop character
 
             # Draw a circle at the calculated center
             cv.circle(frame, (x_center, y_center), 5, (0, 255, 0), -1)
