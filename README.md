@@ -35,7 +35,7 @@ Pull requests are welcome :)
 
 :hourglass_flowing_sand: Heading drift correction with IMU
 
-:hourglass_flowing_sand: Computer vision and tracking using Oak-D
+:hourglass_flowing_sand: Computer vision and marker following
 
 :sparkles: GPS and other sensors for path finding
 
