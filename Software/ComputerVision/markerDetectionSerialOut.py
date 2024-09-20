@@ -67,10 +67,10 @@ while True:
             print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
 
             ### TODO: Make a better calculation for the marker size and use some calc or something ###
+            ### TODO: Add a checksum for serial data integrity ###
 
             # Send the coordinates and size over serial
-            ser.write(f'{x_center},{y_center},{marker_distance}\n'.encode())
-            ser.write(b'\n')  # Add a newline stop character
+            ser.write(f'{x_center},{y_center},{marker_distance}U'.encode())
 
             # Draw a circle at the calculated center
             cv.circle(frame, (x_center, y_center), 5, (0, 255, 0), -1)
