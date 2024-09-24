@@ -53,7 +53,7 @@ void loop() {
     // Print only if data was successfully sent
     if (!isFailure) {
       Serial.println(CLEANOUT);
-      Serial.println("Endcleanout");
+      Serial.println("Success");
     }
     else {
       Serial.println("Failure");
