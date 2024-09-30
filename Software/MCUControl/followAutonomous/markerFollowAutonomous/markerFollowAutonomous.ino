@@ -29,11 +29,11 @@ const int followDistance = 200;
 int markerPosition[3] = { 0, 0, 0 };
 
 // Define buffer for raw serial data
-char BUFFER[13];
+char BUFFER[14];
 int isFailure;
 
 // Cleaned BUFFER for processed serial data
-char CLEANOUT[13];
+char CLEANOUT[14];
 int cleanindex = 0;
 
 // Define position variables
@@ -109,6 +109,7 @@ void moveBrake() {
 void loop() {
     if (Serial.available()) {
 
+        //////////////////////////SERIAL DATA///////////////////////////
         // Clear BUFFERs
         memset(BUFFER, 0, sizeof(BUFFER));
         memset(CLEANOUT, 0, sizeof(CLEANOUT));
@@ -143,40 +144,52 @@ void loop() {
                 markerPosition[2] = marker_distance;
             }
         }
-    }
 
-    // TODO: Make a grade slope speed adjustment based on the y-axis of the marker
-    // TODO: Add kill switch mechanism somehow
+        ////////////////////////////////////////////////////////////////
 
-    // If the marker is over 30 units above the follow distance, move forward
-    if (followDistance - markerPosition[2] > 20) {
-        moveForward(255);
-    }
 
-    // If the marker is between 20 and -20 units of the follow distance, coast
-    if (followDistance - markerPosition[2] <= 20 && followDistance - markerPosition[2] >= -20) {
-        moveNeutral();
-    }
+        //////////////////// CONTROL CODE /////////////////////////
+        // TODO: Make a grade slope speed adjustment based on the y-axis of the marker
+        // TODO: Add kill switch mechanism somehow
 
-    // If the marker is between 20 and 60 units below the follow distance, move backward
-    if (followDistance - markerPosition[2] < -20 && followDistance - markerPosition[2] > -60) {
-        moveBackward(150);
-    }
+        // If the marker is over 30 units above the follow distance, move forward
+        if (followDistance - markerPosition[2] > 20) {
+            moveForward(255);
+            Serial.println("Moving Forward");
+        }
 
-    // If the marker is over 60 units below the follow distance, move backward
-    if (followDistance - markerPosition[2] <= -60) {
-        moveBackward(255);
-    }
+        // If the marker is between 20 and -20 units of the follow distance, coast
+        if (followDistance - markerPosition[2] <= 20 && followDistance - markerPosition[2] >= -20) {
+            moveNeutral();
+            Serial.println("Coasting");
+        }
 
-    // Create a bounding range of 840-1080 for the marker to be in the center
-    if (markerPosition[0] > 1080) {
-        moveRight(255);
-    }
-    if (markerPosition[0] < 840) {
-        moveLeft(255);
-    }
-    if (markerPosition[0] >= 840 && markerPosition[0] <= 1080) {
-        moveNeutral();
+        // If the marker is between 20 and 60 units below the follow distance, move backward
+        if (followDistance - markerPosition[2] < -20 && followDistance - markerPosition[2] > -60) {
+            moveBackward(150);
+            Serial.println("Moving Backward Slowly");
+        }
+
+        // If the marker is over 60 units below the follow distance, move backward
+        if (followDistance - markerPosition[2] <= -60) {
+            moveBackward(255);
+            Serial.println("Moving Backward");
+        }
+
+        // Create a bounding range of 840-1080 for the marker to be in the center
+        if (markerPosition[0] > 1080) {
+            moveRight(255);
+            Serial.println("Moving Right");
+        }
+        if (markerPosition[0] < 840) {
+            moveLeft(255);
+            Serial.println("Moving Left");
+        }
+        if (markerPosition[0] >= 840 && markerPosition[0] <= 1080) {
+            moveNeutral();
+            Serial.println("Coasting");
+        }
+      /////////////////////////////////////////////////////////
     }
 
 }
