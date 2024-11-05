@@ -142,6 +142,11 @@ void loop() {
                 markerPosition[0] = x_center;
                 markerPosition[1] = y_center;
                 markerPosition[2] = marker_distance;
+                Serial.print(x_center);
+                Serial.print(",");
+                Serial.print(y_center);
+                Serial.print(",");
+                Serial.println(marker_distance);
             }
         }
 
