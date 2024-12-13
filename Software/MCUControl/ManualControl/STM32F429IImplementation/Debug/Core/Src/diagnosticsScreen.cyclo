@@ -1,0 +1,4 @@
+../Core/Src/diagnosticsScreen.c:11:6:displayMovementBase	1
+../Core/Src/diagnosticsScreen.c:28:6:displayCurrentMove	1
+../Core/Src/diagnosticsScreen.c:75:6:displayMoveLog	6
+../Core/Src/diagnosticsScreen.c:123:6:displayRunTime	1

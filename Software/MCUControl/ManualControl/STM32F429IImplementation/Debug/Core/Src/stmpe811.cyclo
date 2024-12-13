@@ -1,0 +1,16 @@
+../Drivers/CMSIS/Include/core_cm4.h:1684:22:__NVIC_EnableIRQ	2
+../Core/Src/stmpe811.c:35:18:STMPE811_Init	2
+../Core/Src/stmpe811.c:151:9:STMPE811_Read	1
+../Core/Src/stmpe811.c:160:6:STMPE811_Write	1
+../Core/Src/stmpe811.c:167:18:STMPE811_ReadTouch	16
+../Core/Src/stmpe811.c:229:6:STMPE811_DetermineTouchPosition	5
+../Core/Src/stmpe811.c:251:6:isSTMPE811_Ready	2
+../Core/Src/stmpe811.c:264:6:enableInterruptSupportForTouch	1
+../Core/Src/stmpe811.c:287:6:verifyHAL_I2C_IS_OKAY	2
+../Core/Src/stmpe811.c:294:13:I2C3_Init	2
+../Core/Src/stmpe811.c:319:13:I2C3_MspInit	1
+../Core/Src/stmpe811.c:348:6:I2C3_Write	1
+../Core/Src/stmpe811.c:357:6:I2C3_Read	1
+../Core/Src/stmpe811.c:365:6:I2C3_MulitByteRead	1
+../Core/Src/stmpe811.c:371:10:TM_STMPE811_ReadX	6
+../Core/Src/stmpe811.c:400:10:TM_STMPE811_ReadY	5

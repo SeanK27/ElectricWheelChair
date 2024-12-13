@@ -113,6 +113,6 @@ void loop() {
     
 
     //rightMotor
-    analogWrite(rightMotorPin, rightMotor); 
+    analogWrite(rightMotorPin, rightMotor);
   }
 }

@@ -1,0 +1,6 @@
+../Core/Src/motorDriver.c:11:10:mapp	1
+../Core/Src/motorDriver.c:15:6:motor_CalculatePower	9
+../Core/Src/motorDriver.c:63:6:motor_ApplyPower	1
+../Core/Src/motorDriver.c:72:6:motor_BrakeAll	1
+../Core/Src/motorDriver.c:77:6:motor_noPower	1
+../Core/Src/motorDriver.c:83:6:populateMoves	11
