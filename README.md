@@ -1,6 +1,6 @@
 # Electric Wheelchair Prototype
 
-The Electric Wheelchair Prototype is a personal project with the goal of designing a prototype of an electric wheelchair. This repository stores the control code for multiple device options and will soon include documentation for full project.
+This repository stores the control code for multiple device options and will soon include documentation for full project.
 
 ## Features
 - Full 360 degree range of control including turn on the spot
@@ -10,7 +10,7 @@ The Electric Wheelchair Prototype is a personal project with the goal of designi
 ## Hardware
 - VersaCart S Series 180L
 - 350W Hoverboard Hub Motors
-- STM32F401 Nucleo & Arduino R3
+- STM32F401, STM32F429I, Arduino R3
 - Weize 12V 12Ah Lead Acid Batteries
 - RioRand 350W ESC
 - WitMotion WT901 IMU
