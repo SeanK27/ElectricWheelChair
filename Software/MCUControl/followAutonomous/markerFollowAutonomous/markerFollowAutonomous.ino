@@ -1,10 +1,20 @@
 // Libraries to make Vscode Intellisense happy
 #include <String.h>
 #include <stdio.h>
+#include <PID_v1.h>
 ////////////////////////////    REMOVE ABOVE FOR ARDUINO    ////////////////////////////
 
 void setup() {
 	Serial.begin(9600);
+
+    // Initialize hardware pins
+    pinMode(leftBrakePin, OUTPUT);
+    pinMode(rightBrakePin, OUTPUT);
+    pinMode(leftReversePin, OUTPUT);
+    pinMode(rightReversePin, OUTPUT);
+    pinMode(rightMotorPin, OUTPUT);
+    pinMode(leftMotorPin, OUTPUT);
+    pinMode(buttonPin, INPUT);
 }
 
 // Define and intialize hardware pins
@@ -25,6 +35,9 @@ const int buttonPin = 2;
 // Distance to maintain from the marker
 const int followDistance = 200;
 
+// Center alignment for yaw
+const int centerX = 960;
+
 // Define marker position and distance array [x, y, distance]
 int markerPosition[3] = { 0, 0, 0 };
 
@@ -39,71 +52,48 @@ int cleanindex = 0;
 // Define position variables
 int x_center, y_center, marker_distance;
 
-// Motor control functions (speed: 0-255)
-void moveForward(int speed) {
+// PID control stuff for distance
+double KpD = 1, KiD = 1, KdD = 1;       /////// TODO: TUNE THESE
+double setpointDistance = followDistance, inputDistance, outputDistance;
+PID distancePID(&inputDistance, &outputDistance, &setpointDistance, KpD, KiD, KdD, DIRECT);
 
-    // Write the brakes LOW
+// PID control stuff for yaw
+double KpY = 1, KiY = 1, KdY = 1;       /////// TODO: TUNE THESE
+double setpointYaw = centerX, inputYaw, outputYaw;
+PID yawPID(&inputYaw, &outputYaw, &setpointYaw, KpY, KiY, KdY, DIRECT);
+
+// Motor control functions (speed: 0-255). Brakes cut when moving/coasting
+void move(int leftSpeed, int rightSpeed) {
     digitalWrite(leftBrakePin, LOW);
     digitalWrite(rightBrakePin, LOW);
-
-    // Send the speed to the motors 0-255
-    analogWrite(leftMotorPin, speed);
-    analogWrite(rightMotorPin, speed);
+    analogWrite(leftMotorPin, constrain(leftSpeed, 0, 255));
+    analogWrite(rightMotorPin, constrain(rightSpeed, 0, 255));
 }
 
-void moveRight(int speed) {
-
-    // Write the brakes LOW
-    digitalWrite(leftBrakePin, LOW);
-    digitalWrite(rightBrakePin, LOW);
-
-    // Send the speed to the motors 0-255
-    analogWrite(leftMotorPin, speed);
-    analogWrite(rightMotorPin, 0);
-}
-
-void moveLeft(int speed) {
-
-    // Write the brakes LOW
-    digitalWrite(leftBrakePin, LOW);
-    digitalWrite(rightBrakePin, LOW);
-
-    // Send the speed to the motors 0-255
-    analogWrite(leftMotorPin, 0);
-    analogWrite(rightMotorPin, speed);
-}
-
-void moveBackward(int speed) {
-
-    // Write the brakes LOW
-    digitalWrite(leftBrakePin, LOW);
-    digitalWrite(rightBrakePin, LOW);
-
-    // Send the speed to the motors 0-255
-    analogWrite(leftMotorPin, speed);
-    analogWrite(rightMotorPin, speed);
-}
-
+// Cut brakes and cut power
 void moveNeutral() {
-
-    // Write the brakes HIGH
-    digitalWrite(leftBrakePin, HIGH);
-    digitalWrite(rightBrakePin, HIGH);
-
-    // Send the speed to the motors 0-255
+    digitalWrite(leftBrakePin, LOW);
+    digitalWrite(rightBrakePin, LOW);
     analogWrite(leftMotorPin, 0);
     analogWrite(rightMotorPin, 0);
 }
 
+// Engage brakes and cut power
 void moveBrake() {
 
-    // Write the brakes HIGH
     digitalWrite(leftBrakePin, HIGH);
     digitalWrite(rightBrakePin, HIGH);
-
-    // Send the speed to the motors 0-255
     analogWrite(leftMotorPin, 0);
     analogWrite(rightMotorPin, 0);
+}
+
+// Simple XOR checksum
+int calculateChecksum(const char *data) {
+    int checksum = 0;
+    while (*data) {
+        checksum ^= *data++;
+    }
+    return checksum & 0xFF;  // Lower byte of checksum should be fine
 }
 
 void loop() {
@@ -112,41 +102,31 @@ void loop() {
         //////////////////////////SERIAL DATA///////////////////////////
         // Clear BUFFERs
         memset(BUFFER, 0, sizeof(BUFFER));
-        memset(CLEANOUT, 0, sizeof(CLEANOUT));
 
         // Read the input Serial Data over UART and store the size of the
-        size_t readBytes = Serial.readBytesUntil("U", BUFFER, sizeof(BUFFER) - 1);
+        size_t readBytes = Serial.readBytesUntil('U', BUFFER, sizeof(BUFFER) - 1);
+        int receivedChecksum;
 
-        // Iterate through the BUFFER string and omit bad data
-        for (int i = 0; i < sizeof(BUFFER) - 1; i++) {
+        // Input Integrity Checks
+        if (sscanf(BUFFER, "%d,%d,%d,%d", &x_center, &y_center, &marker_distance, &receivedChecksum) == 4) {
+            
+            // Prep and BUFFER for checksum
+            BUFFER[readBytes - 1] = '\0';
+            int computedChecksum = calculateChecksum(BUFFER);
 
-            // Only add the data that contains integers and commas
-            if (BUFFER[i] != "\n" && BUFFER[i] != "U" ) {
-
-                CLEANOUT[cleanindex] = BUFFER[i];
-                cleanindex++;
-                isFailure = 0;
-            }
-            else {
-
-                // Clear the buffers and trigger failure
-                memset(BUFFER, 0, sizeof(BUFFER));
-                memset(CLEANOUT, 0, sizeof(CLEANOUT));
-                isFailure = 1;
-                break;
-            }
-
-            // If the data is good, convert the data to integers
-            if (isFailure == 0) {
-                sscanf(CLEANOUT, "%d,%d,%d", &x_center, &y_center, &marker_distance);
+            // Store data if checksum valid
+            if (computedChecksum == receivedChecksum) {
                 markerPosition[0] = x_center;
                 markerPosition[1] = y_center;
                 markerPosition[2] = marker_distance;
+                Serial.print("Valid Data: ");
                 Serial.print(x_center);
                 Serial.print(",");
                 Serial.print(y_center);
                 Serial.print(",");
                 Serial.println(marker_distance);
+            } else {
+                Serial.println("Checksum Error: Bad Data");
             }
         }
 
@@ -155,45 +135,27 @@ void loop() {
 
         //////////////////// CONTROL CODE /////////////////////////
         // TODO: Make a grade slope speed adjustment based on the y-axis of the marker
-        // TODO: Add kill switch mechanism somehow
+        // TODO: Add KILL SWITCH, this is pretty important please do this
 
-        // If the marker is over 30 units above the follow distance, move forward
-        if (followDistance - markerPosition[2] > 20) {
-            moveForward(255);
-            Serial.println("Moving Forward");
-        }
+        // Compute PID for distance
+        inputDistance = markerPosition[2];
+        distancePID.Compute();
+        int motorSpeed = constrain(outputDistance, 0, 255);
 
-        // If the marker is between 20 and -20 units of the follow distance, coast
-        if (followDistance - markerPosition[2] <= 20 && followDistance - markerPosition[2] >= -20) {
-            moveNeutral();
-            Serial.println("Coasting");
-        }
+        // Compute PID for yaw
+        inputYaw = markerPosition[0];
+        yawPID.Compute();
+        int yawCorrection = constrain(outputYaw, -255, 255);
 
-        // If the marker is between 20 and 60 units below the follow distance, move backward
-        if (followDistance - markerPosition[2] < -20 && followDistance - markerPosition[2] > -60) {
-            moveBackward(150);
-            Serial.println("Moving Backward Slowly");
-        }
+        // Adjust movement based on PID outs
+        int leftMotorSpeed = motorSpeed - yawCorrection;
+        int rightMotorSpeed = motorSpeed + yawCorrection;
 
-        // If the marker is over 60 units below the follow distance, move backward
-        if (followDistance - markerPosition[2] <= -60) {
-            moveBackward(255);
-            Serial.println("Moving Backward");
-        }
+        move(leftMotorSpeed, rightMotorSpeed);
 
-        // Create a bounding range of 840-1080 for the marker to be in the center
-        if (markerPosition[0] > 1080) {
-            moveRight(255);
-            Serial.println("Moving Right");
-        }
-        if (markerPosition[0] < 840) {
-            moveLeft(255);
-            Serial.println("Moving Left");
-        }
-        if (markerPosition[0] >= 840 && markerPosition[0] <= 1080) {
-            moveNeutral();
-            Serial.println("Coasting");
-        }
+        Serial.print("Left Motor: ");       Serial.print(leftMotorSpeed);
+        Serial.print(" Right Motor: ");     Serial.println(rightMotorSpeed);
+
       /////////////////////////////////////////////////////////
     }
 

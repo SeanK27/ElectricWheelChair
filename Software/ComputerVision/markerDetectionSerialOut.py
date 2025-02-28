@@ -15,6 +15,23 @@ def loopback_test(ser):
     else:
         print("Loopback test failed")
 
+
+# Simple XOR checksum
+def calculate_checksum(data):
+    
+    checksum = 0
+    for char in data:
+        checksum ^= ord(char)  # XOR each character's ASCII value
+    return checksum
+
+# Send formatted data
+def send_serial_data(ser, x, y, distance):
+
+    data = f"{x},{y},{distance}"
+    checksum = calculate_checksum(data)
+    message = f"{data},{checksum}U"
+    ser.write(message.encode())
+
 # Open a serial connection to the Arduino
 ser = serial.Serial('COM5', 9600)
 
@@ -67,10 +84,9 @@ while True:
             print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
 
             ### TODO: Make a better calculation for the marker size and use some calc or something ###
-            ### TODO: Add a checksum for serial data integrity ###
 
             # Send the coordinates and size over serial
-            ser.write(f'{x_center},{y_center},{marker_distance}U'.encode())
+            send_serial_data(ser, x_center, y_center, marker_distance)
 
             # Draw a circle at the calculated center
             cv.circle(frame, (x_center, y_center), 5, (0, 255, 0), -1)
