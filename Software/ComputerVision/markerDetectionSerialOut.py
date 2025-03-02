@@ -31,9 +31,10 @@ def send_serial_data(ser, x, y, distance):
     checksum = calculate_checksum(data)
     message = f"{data},{checksum}U"
     ser.write(message.encode())
+    print(f"Sent: {message}")
 
 # Open a serial connection to the Arduino
-ser = serial.Serial('COM5', 9600)
+ser = serial.Serial('COM3', 115200)
 
 # Perform loopback test
 # loopback_test(ser)
@@ -69,7 +70,7 @@ while True:
             # Get the center of the marker
             x_center = int((corners[0][0][0] + corners[0][2][0]) / 2)
             y_center = int((corners[0][0][1] + corners[0][2][1]) / 2)
-            print(f"Marker ID: {markerId[0]}, Center: ({x_center}, {y_center})")
+            #print(f"Marker ID: {markerId[0]}, Center: ({x_center}, {y_center})")
 
             """
             # Calculate the size of the marker (distance between two opposite corners)
@@ -81,7 +82,7 @@ while True:
             size1 = cv.norm(corners[0][0] - corners[0][2])
             size2 = cv.norm(corners[0][1] - corners[0][3])
             marker_distance = int((size1 + size2) / 2)
-            print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
+            #print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
 
             ### TODO: Make a better calculation for the marker size and use some calc or something ###
 

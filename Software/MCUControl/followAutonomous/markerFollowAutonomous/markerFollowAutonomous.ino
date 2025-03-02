@@ -4,19 +4,6 @@
 #include <PID_v1.h>
 ////////////////////////////    REMOVE ABOVE FOR ARDUINO    ////////////////////////////
 
-void setup() {
-	Serial.begin(9600);
-
-    // Initialize hardware pins
-    pinMode(leftBrakePin, OUTPUT);
-    pinMode(rightBrakePin, OUTPUT);
-    pinMode(leftReversePin, OUTPUT);
-    pinMode(rightReversePin, OUTPUT);
-    pinMode(rightMotorPin, OUTPUT);
-    pinMode(leftMotorPin, OUTPUT);
-    pinMode(buttonPin, INPUT);
-}
-
 // Define and intialize hardware pins
 const int joyYPin = A0;
 const int joyXPin = A1;
@@ -38,6 +25,33 @@ const int followDistance = 200;
 // Center alignment for yaw
 const int centerX = 960;
 
+// PID control stuff for distance
+double KpD = 1, KiD = 1, KdD = 1;       /////// TODO: TUNE THESE
+double setpointDistance = followDistance, inputDistance, outputDistance;
+
+// PID control stuff for yaw
+double KpY = .1, KiY = 0, KdY = 0;       /////// TODO: TUNE THESE
+double setpointYaw = centerX, inputYaw, outputYaw;
+
+PID distancePID(&inputDistance, &outputDistance, &setpointDistance, KpD, KiD, KdD, DIRECT);
+
+PID yawPID(&inputYaw, &outputYaw, &setpointYaw, KpY, KiY, KdY, DIRECT);
+
+void setup() {
+	  Serial.begin(115200);
+
+    yawPID.SetMode(AUTOMATIC);
+
+    // Initialize hardware pins
+    pinMode(leftBrakePin, OUTPUT);
+    pinMode(rightBrakePin, OUTPUT);
+    pinMode(leftReversePin, OUTPUT);
+    pinMode(rightReversePin, OUTPUT);
+    pinMode(rightMotorPin, OUTPUT);
+    pinMode(leftMotorPin, OUTPUT);
+    pinMode(buttonPin, INPUT);
+}
+
 // Define marker position and distance array [x, y, distance]
 int markerPosition[3] = { 0, 0, 0 };
 
@@ -45,22 +59,8 @@ int markerPosition[3] = { 0, 0, 0 };
 char BUFFER[14];
 int isFailure;
 
-// Cleaned BUFFER for processed serial data
-char CLEANOUT[14];
-int cleanindex = 0;
-
 // Define position variables
 int x_center, y_center, marker_distance;
-
-// PID control stuff for distance
-double KpD = 1, KiD = 1, KdD = 1;       /////// TODO: TUNE THESE
-double setpointDistance = followDistance, inputDistance, outputDistance;
-PID distancePID(&inputDistance, &outputDistance, &setpointDistance, KpD, KiD, KdD, DIRECT);
-
-// PID control stuff for yaw
-double KpY = 1, KiY = 1, KdY = 1;       /////// TODO: TUNE THESE
-double setpointYaw = centerX, inputYaw, outputYaw;
-PID yawPID(&inputYaw, &outputYaw, &setpointYaw, KpY, KiY, KdY, DIRECT);
 
 // Motor control functions (speed: 0-255). Brakes cut when moving/coasting
 void move(int leftSpeed, int rightSpeed) {
@@ -93,7 +93,7 @@ int calculateChecksum(const char *data) {
     while (*data) {
         checksum ^= *data++;
     }
-    return checksum & 0xFF;  // Lower byte of checksum should be fine
+    return checksum & 0xFF;  // Lower byte of checksum is sent
 }
 
 void loop() {
@@ -104,14 +104,18 @@ void loop() {
         memset(BUFFER, 0, sizeof(BUFFER));
 
         // Read the input Serial Data over UART and store the size of the
-        size_t readBytes = Serial.readBytesUntil('U', BUFFER, sizeof(BUFFER) - 1);
+        size_t readBytes = Serial.readBytesUntil('U', BUFFER, sizeof(BUFFER));
         int receivedChecksum;
 
         // Input Integrity Checks
         if (sscanf(BUFFER, "%d,%d,%d,%d", &x_center, &y_center, &marker_distance, &receivedChecksum) == 4) {
-            
-            // Prep and BUFFER for checksum
-            BUFFER[readBytes - 1] = '\0';
+
+            // Find the last comma (before the checksum)
+            char *lastComma = strrchr(BUFFER, ',');
+            if (lastComma) {
+                *lastComma = '\0';  // Truncate string at last comma
+            }
+
             int computedChecksum = calculateChecksum(BUFFER);
 
             // Store data if checksum valid
@@ -119,14 +123,19 @@ void loop() {
                 markerPosition[0] = x_center;
                 markerPosition[1] = y_center;
                 markerPosition[2] = marker_distance;
+                /*
                 Serial.print("Valid Data: ");
                 Serial.print(x_center);
                 Serial.print(",");
                 Serial.print(y_center);
                 Serial.print(",");
                 Serial.println(marker_distance);
+                */
             } else {
-                Serial.println("Checksum Error: Bad Data");
+                Serial.print("Checksum Error: Bad Data: ");
+                Serial.print(computedChecksum);
+                Serial.print(" != ");
+                Serial.println(receivedChecksum);
             }
         }
 
@@ -153,8 +162,10 @@ void loop() {
 
         move(leftMotorSpeed, rightMotorSpeed);
 
-        Serial.print("Left Motor: ");       Serial.print(leftMotorSpeed);
-        Serial.print(" Right Motor: ");     Serial.println(rightMotorSpeed);
+        Serial.println(yawCorrection);
+        //Serial.println(leftMotorSpeed);
+        //Serial.print("Left Motor: ");       Serial.print(leftMotorSpeed);
+        //Serial.print(" Right Motor: ");     Serial.println(rightMotorSpeed);
 
       /////////////////////////////////////////////////////////
     }
