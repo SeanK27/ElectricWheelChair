@@ -77,7 +77,8 @@ while True:
             marker_distance = int(cv.norm(corners[0][0] - corners[0][2]))
             print(f"Marker ID: {markerId[0]}, Size: {marker_distance}")
             """
-
+            
+            # TODO: Find a way to fix the nonlinearity of this method. Diminishing change in size as distance increases.
             # Calculate the size of the marker using the average distance between all pairs of opposite corners
             size1 = cv.norm(corners[0][0] - corners[0][2])
             size2 = cv.norm(corners[0][1] - corners[0][3])

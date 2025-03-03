@@ -20,13 +20,13 @@ const int leftMotorPin = 6;
 const int buttonPin = 2;
 
 // Distance to maintain from the marker
-const int followDistance = 200;
+const int followDistance = 80;
 
 // Center alignment for yaw
 const int centerX = 960;
 
 // PID control stuff for distance
-double KpD = 1, KiD = 1, KdD = 1;       /////// TODO: TUNE THESE
+double KpD = .6, KiD = .1, KdD = .3;       /////// TODO: TUNE THESE
 double setpointDistance = followDistance, inputDistance, outputDistance;
 
 // PID control stuff for yaw
@@ -41,6 +41,8 @@ void setup() {
 	  Serial.begin(115200);
 
     yawPID.SetMode(AUTOMATIC);
+
+    distancePID.SetMode(AUTOMATIC);
 
     // Initialize hardware pins
     pinMode(leftBrakePin, OUTPUT);
@@ -162,10 +164,15 @@ void loop() {
 
         move(leftMotorSpeed, rightMotorSpeed);
 
-        Serial.println(yawCorrection);
+        //Serial.println(yawCorrection);
         //Serial.println(leftMotorSpeed);
         //Serial.print("Left Motor: ");       Serial.print(leftMotorSpeed);
         //Serial.print(" Right Motor: ");     Serial.println(rightMotorSpeed);
+
+        Serial.print("D_Error:"); Serial.print(setpointDistance - inputDistance);
+        Serial.print(" Y_Error:"); Serial.print(setpointYaw - inputYaw);
+        Serial.print(" PID_Distance:"); Serial.print(outputDistance);
+        Serial.print(" PID_Yaw:"); Serial.println(outputYaw);
 
       /////////////////////////////////////////////////////////
     }
