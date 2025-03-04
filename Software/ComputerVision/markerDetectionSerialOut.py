@@ -41,6 +41,8 @@ ser = serial.Serial('COM3', 115200)
 
 # Load the camera
 cap = cv.VideoCapture(0)
+cap.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
 
 # Define the ArUco dictionary and parameters
 dictionary = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_250)
@@ -92,6 +94,10 @@ while True:
 
             # Draw a circle at the calculated center
             cv.circle(frame, (x_center, y_center), 5, (0, 255, 0), -1)
+            
+    else:
+        # Send 0's if no markers are detected
+        send_serial_data(ser, 0, 0, 0)
 
     # Output the frame with detection boxes and centers displayed
     cv.imshow('ArUco Marker Detection', frame)
