@@ -39,7 +39,7 @@ double KpD = 1.2, KiD = 0, KdD = 0;       /////// TODO: TUNE THESE
 double setpointDistance = followDistance, inputDistance, outputDistance;
 
 // PID control stuff for yaw
-double KpY = .15, KiY = 0, KdY = 0;       /////// TODO: TUNE THESE
+double KpY = .15, KiY = 0.1, KdY = 0;       /////// TODO: TUNE THESE
 double setpointYaw = centerX, inputYaw, outputYaw;
 
 PID distancePID(&inputDistance, &outputDistance, &setpointDistance, KpD, KiD, KdD, DIRECT);
@@ -59,6 +59,7 @@ void setup() {
     pinMode(leftBrakePin, OUTPUT);
     pinMode(rightBrakePin, OUTPUT);
     pinMode(leftReversePin, OUTPUT);
+    digitalWrite(leftReversePin, HIGH);
     pinMode(rightReversePin, OUTPUT);
     pinMode(rightMotorPin, OUTPUT);
     pinMode(leftMotorPin, OUTPUT);
