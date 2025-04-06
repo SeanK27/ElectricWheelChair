@@ -33,9 +33,7 @@ Pull requests are welcome :)
 
 :white_check_mark: Initial software for full movement range
 
-:hourglass_flowing_sand: Heading drift correction with IMU
-
-:hourglass_flowing_sand: Computer vision and marker following
+:white_check_mark: Computer vision and marker following
 
 :sparkles: GPS and other sensors for path finding
 
